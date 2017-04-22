@@ -1,6 +1,6 @@
 ## JSONBeautifier
 
-This is a Burp Extension for beautifying JSON output.  There exists a [python version](https://portswigger.net/bappstore/showbappdetails.aspx?uuid=ceed5b1568ba4b92abecce0dff1e1f2c) in the BApp Store at the moment.  After some difficulties with Jython it has been updated to Java.
+This is a Burp Extension for beautifying JSON output.  There exists a [python version](https://portswigger.net/bappstore/showbappdetails.aspx?uuid=ceed5b1568ba4b92abecce0dff1e1f2c) in the BApp Store at the moment.  After some difficulties with Jython I opted to update it to Java.
 
 ### Using
 Download the repo > Open Burp > Extender > Extensions > Add > Java > ~/burp/out/artifacts/burp_jar
