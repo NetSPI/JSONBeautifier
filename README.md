@@ -18,5 +18,5 @@ In case any changes need to be made make sure to include ~/lib/gson-2.8.0 in Fil
 
 Once gson is added do the following to create the new jar archive. 
 
-File > Project Structure > Artifacts > Plus Sign > Jar > From modules with dependencies > OK and check the Include in project build checkbox.
+File > Project Structure > Artifacts > Plus Sign > Jar > From modules with dependencies > OK and check the Include in project build checkbox.  After this anytime the project builds a .jar archive will be made.
 [Thanks Gruber for those instructions](https://github.com/NetSPI/Wsdler/blob/master/README.md#how-to-compile).
