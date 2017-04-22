@@ -24,7 +24,7 @@ public class BurpExtender implements IBurpExtender, IMessageEditorTabFactory {
         helpers = callbacks.getHelpers();
 
         // set our extension name
-        callbacks.setExtensionName("JSON Decoder");
+        callbacks.setExtensionName("JSON Beautifier");
 
         // register ourselves as a message editor tab factory
         callbacks.registerMessageEditorTabFactory(this);
@@ -35,20 +35,20 @@ public class BurpExtender implements IBurpExtender, IMessageEditorTabFactory {
     //
     @Override
     public IMessageEditorTab createNewInstance(IMessageEditorController controller, boolean editable) {
-        // create a new instance of our custom editor tab
-        return new JSONDecoderTab(controller, editable);
+        // create a new instance of our custom beautifer tab
+        return new JSONBeautifierTab(controller, editable);
     }
 
     //
     // class implementing IMessageEditorTab
     //
-    class JSONDecoderTab implements IMessageEditorTab {
+    class JSONBeautifierTab implements IMessageEditorTab {
 
         private boolean editable;
         private ITextEditor txtInput;
         private byte[] currentMessage;
-
-        public JSONDecoderTab(IMessageEditorController controller, boolean editable) {
+        private boolean modifiedJSON = false;
+        public JSONBeautifierTab(IMessageEditorController controller, boolean editable) {
             this.editable = editable;
 
             // create an instance of Burp's text editor, to display our deserialized data
@@ -61,7 +61,7 @@ public class BurpExtender implements IBurpExtender, IMessageEditorTabFactory {
         //
         @Override
         public String getTabCaption() {
-            return "JSON Decoder";
+            return "JSON Beautifier";
         }
 
         @Override
@@ -96,12 +96,11 @@ public class BurpExtender implements IBurpExtender, IMessageEditorTabFactory {
                 if (isRequest) {
                     IRequestInfo requestInfo = helpers.analyzeRequest(content);
                     bodyOffset = requestInfo.getBodyOffset();
-
                 } else {
                     IResponseInfo responseInfo = helpers.analyzeResponse(content);
                     bodyOffset = responseInfo.getBodyOffset();
-
                 }
+                //Get only the JSON part of the content
                 byte[] requestResponseBody = Arrays.copyOfRange(content, bodyOffset, content.length);
                 try {
                     JsonParser jp = new JsonParser();
@@ -109,6 +108,7 @@ public class BurpExtender implements IBurpExtender, IMessageEditorTabFactory {
                     json = gson.toJson(je);
                     txtInput.setText(json.getBytes());
                     txtInput.setEditable(editable);
+                    modifiedJSON = true;
                 } catch (Exception e) {
                     txtInput.setText(e.toString().getBytes());
                 }
@@ -116,11 +116,25 @@ public class BurpExtender implements IBurpExtender, IMessageEditorTabFactory {
             }
 
             // remember the displayed content
-            currentMessage = json.getBytes();
+            currentMessage = content;
         }
 
         @Override
         public byte[] getMessage() {
+            String json = "";
+            //Get the modified content and add the headers back to the top
+            if (txtInput.isTextModified()) {
+                Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+                try {
+                    JsonParser jp = new JsonParser();
+                    JsonElement je = jp.parse(new String(txtInput.getText()));
+                    json = gson.toJson(je);
+                    IRequestInfo requestInfo = helpers.analyzeRequest(currentMessage);
+                    return helpers.buildHttpMessage(requestInfo.getHeaders(), json.getBytes());
+                } catch (Exception e) {
+                    return currentMessage;
+                }
+            }
             return null;
         }
 

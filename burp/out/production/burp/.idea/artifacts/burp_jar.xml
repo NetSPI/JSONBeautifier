@@ -2,8 +2,8 @@
   <artifact type="jar" build-on-make="true" name="burp:jar">
     <output-path>$PROJECT_DIR$/out/artifacts/burp_jar</output-path>
     <root id="archive" name="burp.jar">
+      <element id="extracted-dir" path="$PROJECT_DIR$/../lib/gson-2.8.0.jar" path-in-jar="/" />
       <element id="module-output" name="burp" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/../../gson-2.8.0.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>
