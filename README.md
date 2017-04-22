@@ -5,6 +5,9 @@ This is a Burp Extension for beautifying JSON output.  There exists a [python ve
 ### Using
 Download the repo > Open Burp > Extender > Extensions > Add > Java > ~/burp/out/artifacts/burp_jar
 
+<img src="/img/JSONRaw.PNG"/>
+<img src="/img/JSONBeautified.PNG"/>
+
 ### Developing
 All development was done in IntelliJ.
 
