@@ -5,7 +5,10 @@ This is a Burp Extension for beautifying JSON output.  There exists a [python ve
 ### Using
 Download the repo > Open Burp > Extender > Extensions > Add > Java > ~/burp/out/artifacts/burp_jar
 
+#### Before
 <img src="/img/JSONRaw.PNG"/>
+
+#### After
 <img src="/img/JSONBeautified.PNG"/>
 
 ### Developing
