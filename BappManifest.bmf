@@ -1,0 +1,12 @@
+Uuid: 309ef28d45ff4f19bedfed3896cb3ca9
+ExtensionType: 1
+Name: JSON Beautifier
+RepoName: json-beautifier
+ScreenVersion: 1.0
+SerialVersion: 0
+MinPlatformVersion: 0
+ProOnly: False
+Author: Jake Reynolds
+ShortDescription: Native JSON beautifier.
+EntryPoint: build/libs/json-beautifier-all.jar
+BuildCommand: gradle fatJar
