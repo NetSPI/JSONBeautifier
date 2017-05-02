@@ -7,6 +7,6 @@ SerialVersion: 0
 MinPlatformVersion: 0
 ProOnly: False
 Author: Jake Reynolds
-ShortDescription: Native JSON beautifier.
+ShortDescription: Beautifies JSON content in the HTTP message viewer.
 EntryPoint: build/libs/json-beautifier-all.jar
 BuildCommand: gradle fatJar
