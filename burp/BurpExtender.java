@@ -91,7 +91,7 @@ public class BurpExtender implements IBurpExtender, IMessageEditorTabFactory {
                 txtInput.setEditable(false);
             } else {
                 //Take the input, determine request/response, parse as json, then print prettily.
-                Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
+                Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().serializeNulls().create();
                 int bodyOffset = 0;
                 if (isRequest) {
                     IRequestInfo requestInfo = helpers.analyzeRequest(content);
@@ -124,7 +124,7 @@ public class BurpExtender implements IBurpExtender, IMessageEditorTabFactory {
             String json = "";
             //Get the modified content and add the headers back to the top
             if (txtInput.isTextModified()) {
-                Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+                Gson gson = new GsonBuilder().disableHtmlEscaping().serializeNulls().create();
                 try {
                     JsonParser jp = new JsonParser();
                     JsonElement je = jp.parse(new String(txtInput.getText()));
