@@ -6,12 +6,23 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import java.awt.Component;
 import java.util.Arrays;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import javax.swing.JButton;
+import javax.swing.SwingUtilities;
+import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 
-public class BurpExtender implements IBurpExtender, IMessageEditorTabFactory {
+
+public class BurpExtender implements IBurpExtender, IMessageEditorTabFactory, ITab {
 
     private IBurpExtenderCallbacks callbacks;
     private IExtensionHelpers helpers;
-
+    private JPanel mainPane;
+    final JTextArea beautifyTextArea = new JTextArea(5, 10);
     //
     // implement IBurpExtender
     //
@@ -28,8 +39,72 @@ public class BurpExtender implements IBurpExtender, IMessageEditorTabFactory {
 
         // register ourselves as a message editor tab factory
         callbacks.registerMessageEditorTabFactory(this);
-    }
 
+        // create our UI
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                //Main split pane
+                mainPane = new JPanel(new BorderLayout());
+
+                //Create the text area and scroll pane for JSON
+                beautifyTextArea.setLineWrap(true);
+                JPanel beautifyTextWrapper = new JPanel(new BorderLayout());
+                JScrollPane beautifyScrollPane = new JScrollPane(beautifyTextArea);
+                beautifyTextWrapper.add(beautifyScrollPane, BorderLayout.CENTER);
+                mainPane.add(beautifyTextWrapper, BorderLayout.CENTER);
+
+                //Create the beautify and minify buttons and their wrapper
+                JButton beautifyButton = new JButton("Beautify");
+                beautifyButton.addActionListener(new BeautifyButtonListener());
+                JButton minifyButton = new JButton("Minify");
+                minifyButton.addActionListener(new MinifyButtonListener());
+                JPanel buttons = new JPanel();
+                buttons.add(beautifyButton, BorderLayout.CENTER);
+                buttons.add(minifyButton, BorderLayout.CENTER);
+
+                mainPane.add(buttons, BorderLayout.SOUTH);
+                callbacks.customizeUiComponent(mainPane);
+
+                // Add the custom tab to Burp's UI
+                callbacks.addSuiteTab(BurpExtender.this);
+            }
+        });
+    }
+    //Listener for when the "Beautify" button is clicked
+    class BeautifyButtonListener implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent ae) {
+            try {
+                String json = "";
+                Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().serializeNulls().create();
+                JsonParser jp = new JsonParser();
+                JsonElement je = jp.parse(new String(beautifyTextArea.getText()));
+                json = gson.toJson(je);
+                beautifyTextArea.setText(json);
+            } catch (Exception ex) {
+                beautifyTextArea.setText("Error beautifying data, please try again.\n" + ex.toString());
+            }
+        }
+    }
+    //Listener for when the "Minify" button is clicked
+    class MinifyButtonListener implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent ae) {
+            try {
+                String json = "";
+                Gson gson = new GsonBuilder().disableHtmlEscaping().serializeNulls().create();
+                JsonParser jp = new JsonParser();
+                JsonElement je = jp.parse(new String(beautifyTextArea.getText()));
+                json = gson.toJson(je);
+                beautifyTextArea.setText(json);
+            } catch (Exception ex) {
+                beautifyTextArea.setText("Error minifying data, please try again.\n" + ex.toString());
+            }
+        }
+    }
     //
     // implement IMessageEditorTabFactory
     //
@@ -38,7 +113,15 @@ public class BurpExtender implements IBurpExtender, IMessageEditorTabFactory {
         // create a new instance of our custom beautifer tab
         return new JSONBeautifierTab(controller, editable);
     }
+    @Override
+    public String getTabCaption() {
+        return "JSON Beautifier";
+    }
 
+    @Override
+    public Component getUiComponent() {
+        return mainPane;
+    }
     //
     // class implementing IMessageEditorTab
     //
@@ -91,7 +174,7 @@ public class BurpExtender implements IBurpExtender, IMessageEditorTabFactory {
                 txtInput.setEditable(false);
             } else {
                 //Take the input, determine request/response, parse as json, then print prettily.
-                Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
+                Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().serializeNulls().create();
                 int bodyOffset = 0;
                 if (isRequest) {
                     IRequestInfo requestInfo = helpers.analyzeRequest(content);
@@ -124,7 +207,7 @@ public class BurpExtender implements IBurpExtender, IMessageEditorTabFactory {
             String json = "";
             //Get the modified content and add the headers back to the top
             if (txtInput.isTextModified()) {
-                Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+                Gson gson = new GsonBuilder().disableHtmlEscaping().serializeNulls().create();
                 try {
                     JsonParser jp = new JsonParser();
                     JsonElement je = jp.parse(new String(txtInput.getText()));
