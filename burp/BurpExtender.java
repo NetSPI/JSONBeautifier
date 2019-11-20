@@ -161,7 +161,7 @@ public class BurpExtender implements IBurpExtender, IMessageEditorTabFactory, IT
                 return requestInfo.getContentType() == IRequestInfo.CONTENT_TYPE_JSON;
             } else {
                 responseInfo = helpers.analyzeResponse(content);
-                return responseInfo.getInferredMimeType().equals("JSON");
+                return responseInfo.getInferredMimeType().equals("JSON") || responseInfo.getStatedMimeType().equals("JSON");
             }
         }
 
